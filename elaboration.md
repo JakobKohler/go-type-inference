@@ -12,6 +12,10 @@ First, it makes coding faster by reducing the amount of code that developers nee
 The general process of type inference in Go is to recursively compare the types of two expressions with each other until they are identical in a process called unification and then expand the results for the remaining type parameters. The following is going to explore what this means precisely and showcase how its done in Go
 
 #### 0. Notiation
+Before going into detail about the workings of type inference in Go, it's important to first established the used notation. This short elaboration will use the following operators and notations:
+- `E ≡ F`: Meaning `E` must be identical to `F`
+- `E :≡ Collection`: Meaning `Collection` is assignable to `E`
+- `E ∈ comparable `: Meaning `E` satisfies the constraint `comparable`, meaning it is in its type *set*
 
 #### 1. Unification
 In computer science the term unification is generally used to describe an algorithmic process of solving equations between expressions by replacing their variables with suitable terms until the resulting expressions are equivalent.
@@ -88,7 +92,7 @@ These type equations **result** in:
 This example shows how the same mechanisms of sloving a set of type equations is also applied in cases where the types are explicitly statet and are therefore trivial to determine.
 
 
-#### Solving these equations
+### 2. Solving these equations
 
 As already mentioned above, the process of solving the type equations extracted above, both sides of the equation are compared against each other while recursively substituting types for their underlying types in order to find suitable type arguments that solve the equations. This process is called unification because the end goal is to unify both sides (i.e make the identical) so that moving on, they can be regarded as the same type. Two type parameters A and B are unified if they are matched against each other while neither of them already has an inferred type so now, if further down the type inferrence process either A or B are matched against a type T, they both are set to T at the same time.
 
@@ -110,9 +114,10 @@ The first issue is rather simple to detect and avoid. If the two types compared 
 
 Conflicting type arguments can sometimes be harder to spot but will also cause unification (and type inference) to fail. For this example, the types A and B are defined as follows: `A: struct{a E; b byte; c []E}` and `B: struct{a bool; b F, c []F}`. Recursivce type unification determines the following parinings correctly: `E ≡ bool => E ➞ bool` from the first field of the struct, `byte ≡ F => F ➞ byte`. The conflict arises with the unification of the third struct field which results in `[]E ≡ []F => E ≡ F`. This cannot be true if E and F are of different types so the unification fails at this point.
 
-**Special situation: Untyped constants**
+### 3. Special situation: Untyped constants
 
-The above looked at only situations in which there are types on both sides of the equation. But it is quite common in code to find a situation in which there is no type specifically given. Untyped constants are usually not considered for type inference and is subordinate to typed arguments. Only in the situation where the type parameter has no inferred type yet, the untyped constant supplies this type. In Go, untyped constants have a default type which will be used for type inference in these cases. If different constants compete for the same type variable it usually results in an error unless the constants are in some order assignable to one of the competeing default type (e.g int is assignable to float64)
+The above looked at only situations in which there are types on both sides of the equation. But it is quite common in code to find a situation in which there is no type specifically given. Untyped constants are usually not considered for type inference and is subordinate to typed arguments. Only in the situation where the type parameter has no inferred type yet, the untyped constant supplies this type. In Go, untyped constants have a default type which will be used for type inference in these cases. If different constants compete for the same type variable it usually results in an error unless the constants are in some order assignable to one of the competeing default type (e.g int is assignable to float64).
+
 **Example**:
 
 ```
@@ -124,7 +129,7 @@ var a bool
 `foo(a, 3)`: Explicit type given => `P -> bool`, but second parameter `b` cannot be assigned to bool, so this creates an error
 `foo(3, 4)`: Both parameters have the same default type (int) so: `P -> int`
 `foo(3, 4.2)`: Default types `int` and `float64`. In this case Go selects the larger type to go with, so: `P -> float64`
-`foo(3, "Test")`: Default types `int` and `string`
+`foo(3, "Test")`: Default types `int` and `string` are not assignable to each other in any way or order so the parameter passing fails in this case
 
 
 
@@ -135,5 +140,9 @@ Untyped constants
 Whats missing:
 No simplifying, No X :≡ Y or X ∈ Y type relations -->
 
-Quelle: Go Blog
+### Sources:
+- https://go.dev/blog/type-inference
+- https://go.dev/ref/spec#Underlying_types
+- https://go.dev/ref/spec#Underlying_types
+- https://go.dev/ref/spec#Assignability
 
