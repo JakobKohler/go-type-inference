@@ -43,4 +43,14 @@ func showExplicitTypeArgs() {
 	x := Rectangle{width: 2, height: 3}
 
 	printInput[Rectangle](x)
+
+}
+
+func test[Q any](a Q, b Q) {
+	fmt.Println(a, b)
+}
+
+func run() {
+	test(1, 3.14)   //This doesnt cause an error, the larger type is selected
+	test(1, "test") //This causes an error due to default type mismatch
 }

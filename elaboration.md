@@ -106,11 +106,34 @@ G ➞ int
 ```
 In this process, mainly two types of issues can occur: Trying to unify types of different underlying structures and trying to unify types for which the type arguments create logically conflicting necessities.
 
+The first issue is rather simple to detect and avoid. If the two types compared are not of the same underlying structure, the unification and hence the type inference fails. Example: `A: map[int]int, B: map[E][5]int`. The first comparision (`map[...] ≡ map[...]`) succeeds for both types (both are maps), in the second comparison one layer deeper, the algorithm correctly infers `E ➞ int` from `E ≡ int`. It fails with the final comparison of `int ≡ [5]int`.
+
+Conflicting type arguments can sometimes be harder to spot but will also cause unification (and type inference) to fail. For this example, the types A and B are defined as follows: `A: struct{a E; b byte; c []E}` and `B: struct{a bool; b F, c []F}`. Recursivce type unification determines the following parinings correctly: `E ≡ bool => E ➞ bool` from the first field of the struct, `byte ≡ F => F ➞ byte`. The conflict arises with the unification of the third struct field which results in `[]E ≡ []F => E ≡ F`. This cannot be true if E and F are of different types so the unification fails at this point.
+
+**Special situation: Untyped constants**
+
+The above looked at only situations in which there are types on both sides of the equation. But it is quite common in code to find a situation in which there is no type specifically given. Untyped constants are usually not considered for type inference and is subordinate to typed arguments. Only in the situation where the type parameter has no inferred type yet, the untyped constant supplies this type. In Go, untyped constants have a default type which will be used for type inference in these cases. If different constants compete for the same type variable it usually results in an error unless the constants are in some order assignable to one of the competeing default type (e.g int is assignable to float64)
+**Example**:
+
+```
+func test[P any](a P, b P) {...}
+var a bool
+```
+
+`foo(a, a)`: Explicit type given => `P -> bool`
+`foo(a, 3)`: Explicit type given => `P -> bool`, but second parameter `b` cannot be assigned to bool, so this creates an error
+`foo(3, 4)`: Both parameters have the same default type (int) so: `P -> int`
+`foo(3, 4.2)`: Default types `int` and `float64`. In this case Go selects the larger type to go with, so: `P -> float64`
+`foo(3, "Test")`: Default types `int` and `string`
 
 
 
 
-Bound vs free type parameters...
+
+<!-- Bound vs free type parameters...
+Untyped constants
+Whats missing:
+No simplifying, No X :≡ Y or X ∈ Y type relations -->
 
 Quelle: Go Blog
 
