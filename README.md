@@ -78,7 +78,7 @@ In the context of type inference, these equations are type equations derived fro
 
 Example of all type equations collected from a specific piece of code which makes use of type inference:
 
-```
+```go
 func checkEquality[E comparable](a, b E) bool {...}
 
 func removeDuplicates[S ~[]P, P any](col S, eq func(P, P) bool) S
@@ -137,11 +137,11 @@ printInput[Rectangle](r)
 - `E :≡ Rectangle`
 
 These elements result in the following **type equations to be solved**:
-- `E ∈ Printable`: The type E must be element of the type set of the constraint `Printable` which contains all types which implement the interface `Printable`
-- `E :≡ Rectangle`: The assignment of Rectange to E is given explicitly in the Code
+- `E ∈ Printable`: The type `E` must be element of the type set of the constraint `Printable` which contains all types which implement the interface `Printable`
+- `E :≡ Rectangle`: The assignment of Rectange to `E` is given explicitly in the Code
 
 These type equations **result** in:
-- E ➞ Rectangle
+- `E` ➞ Rectangle
 
 This example shows how the same mechanisms of sloving a set of type equations is also applied in cases where the types are explicitly statet and are therefore trivial to determine.
 
