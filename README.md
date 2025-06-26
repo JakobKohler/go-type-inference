@@ -21,7 +21,7 @@ func getTwoValues() (string, int) {
     return "Some string", 42
 }
 
-name, age := getNameAndAge()  // inferred as string and int
+name, age := getTwoValues()  // inferred as string and int
 ```
 3. Type inference also works for composite literals like structs, slices or maps
 ```go
@@ -30,9 +30,9 @@ type Person struct {
     Age  int
 }
 
-p := Person{"Bob", 40} // inferred as Person
+p := Person{"Alice", 42} // inferred as Person
 nums := []int{1, 2, 3} // inferred as []int
-settings := map[string]bool{"dark_mode": true} // inferred as map[string]bool
+settings := map[string]bool{"key": true} // inferred as map[string]bool
 ```
 4. The following example shows clearly how type inference can make code more readable and also easier to write and maintain:
 Given the following function:
