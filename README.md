@@ -87,7 +87,6 @@ type Collection []string
 var set Collection
 
 filteredCollection := removeDuplicates(set, equalityCheck)
-Explicit type arguments: einbauen
 ```
 
 **Type parameteres + constraints**:
