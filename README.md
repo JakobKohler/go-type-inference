@@ -8,6 +8,60 @@ Type inference in Go is the ability of the Go compiler to automatically determin
 
 First, it makes coding faster by reducing the amount of code that developers need to write. This can help prevent mistakes that might happen when specifying types manually. Second, it improves code readability, making it easier for developers to understand what the code is doing. By letting the compiler figure out the types, Go allows for a more straightforward coding style. Finally, type inference keeps the strong typing of Go, ensuring that type safety is maintained while still making programming more convenient.
 
+##### Examples:
+1. This example shows basic local inference
+```go
+x := 42            // inferred as int
+y := 3.14          // inferred as float64
+z := complex(2, 3) // inferred as complex128
+```
+2. Types can also be inferred from function return values:
+```go
+func getTwoValues() (string, int) {
+    return "Some string", 42
+}
+
+name, age := getNameAndAge()  // inferred as string and int
+```
+3. Type inference also works for composite literals like structs, slices or maps
+```go
+type Person struct {
+    Name string
+    Age  int
+}
+
+p := Person{"Bob", 40} // inferred as Person
+nums := []int{1, 2, 3} // inferred as []int
+settings := map[string]bool{"dark_mode": true} // inferred as map[string]bool
+```
+4. The following example shows clearly how type inference can make code more readable and also easier to write and maintain:
+Given the following function:
+```go
+func Map[S ~[]E, E any, R any](input S, f func(E) R) []R
+```
+Usage of the Map function without type inference
+```go
+type Names []string
+var names Names
+
+var toLengths func(string) int = func(s string) int {
+	return len(s)
+}
+
+var lengths []int = slices.Map[Names, string, int](names, toLengths)
+```
+And with the use of type inference
+```go
+type Names []string
+var names Names
+
+toLengths := func(s string) int {
+	return len(s)
+}
+
+lengths := slices.Map(names, toLengths)
+```
+
 ### How Type Inference works in Go
 The general process of type inference in Go is to recursively compare the types of two expressions with each other until they are identical in a process called unification and then expand the results for the remaining type parameters. The following is going to explore what this means precisely and showcase how its done in Go
 
@@ -58,7 +112,7 @@ These type equations **result** in:
 
 Another short example which also includes explicit type arguments:
 
-```
+```go
 type Printable interface{
     toString()
 }
@@ -120,7 +174,7 @@ The above looked at only situations in which there are types on both sides of th
 
 **Example**:
 
-```
+```go
 func test[P any](a P, b P) {...}
 var a bool
 ```
