@@ -188,12 +188,7 @@ var a bool
 
 
 ### 4. Summary
-TODO
-
-<!-- Bound vs free type parameters...
-Untyped constants
-Whats missing:
-No simplifying, No X :≡ Y or X ∈ Y type relations -->
+Type inference in Go lets the compiler automatically deduce types based on context, reducing the need for explicit type declarations. It works through unification, where types are recursively compared and matched to solve type equations. Inference uses type constraints, function signatures, and structure matching to determine the correct types. Untyped constants are used only if no typed values are available, and mismatches cause errors. Overall, type inference keeps code concise, readable and type-safe.
 
 ### Sources:
 - https://go.dev/blog/type-inference
